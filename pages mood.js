@@ -1,6 +1,13 @@
-import { useState } from 'react'
-import html2canvas from 'html2canvas'
-import { useRef } from 'react'
+'use client'
+import { useState, useRef, useEffect } from 'react'
+
+// 动态导入 html2canvas，避免服务端构建报错
+let html2canvas;
+useEffect(() => {
+  import('html2canvas').then(module => {
+    html2canvas = module.default;
+  });
+}, []);
 
 export default function Mood() {
   const [mood, setMood] = useState('')
@@ -11,12 +18,19 @@ export default function Mood() {
   ]
 
   const save = async () => {
-    if (!cardRef.current) return
-    const canvas = await html2canvas(cardRef.current)
-    const link = document.createElement('a')
-    link.download = 'mood-card.png'
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+    if (!cardRef.current || !html2canvas) return;
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        logging: false
+      });
+      const link = document.createElement('a');
+      link.download = 'mood-card.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {
+      alert('保存失败：' + e.message);
+    }
   }
 
   return (
@@ -26,7 +40,7 @@ export default function Mood() {
         <select
           value={mood}
           onChange={(e) => setMood(e.target.value)}
-          style={{ padding: 10, borderRadius: 10, width: '100%', marginBottom: 20 }}
+          style={{ marginBottom: 20 }}
         >
           <option value="">选择心情</option>
           {moods.map(m => (

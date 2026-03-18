@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react'
 
 export default function Counter() {
@@ -14,7 +15,7 @@ export default function Counter() {
           onChange={(e) => setText(e.target.value)}
         />
         <div style={{ marginTop: 10 }}>
-          字数：{text.length} | 汉字：{(text.match(/[\u4e00-\u9fa5]/g) || []).length}
+          总字符数：{text.length} | 汉字数：{(text.match(/[\u4e00-\u9fa5]/g) || []).length}
         </div>
       </div>
     </div>
