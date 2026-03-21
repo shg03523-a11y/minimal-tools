@@ -1,35 +1,38 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 
-// 动态导入 html2canvas，避免服务端构建报错
-let html2canvas;
-useEffect(() => {
-  import('html2canvas').then(module => {
-    html2canvas = module.default;
-  });
-}, []);
-
 export default function Mood() {
   const [mood, setMood] = useState('')
+  const [html2canvas, setHtml2canvas] = useState(null)
   const cardRef = useRef(null)
 
-  const moods = [
-    '开心', '平静', '疲惫', '治愈', '焦虑', '温暖', '自由'
-  ]
+  const moods = ['开心', '平静', '疲惫', '治愈', '焦虑', '温暖', '自由']
+
+  useEffect(() => {
+    import('html2canvas').then(module => {
+      setHtml2canvas(() => module.default)
+    })
+  }, [])
 
   const save = async () => {
-    if (!cardRef.current || !html2canvas) return;
+    if (!cardRef.current || !html2canvas) {
+      alert('正在初始化，请稍后...')
+      return
+    }
+    
     try {
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
-        logging: false
-      });
-      const link = document.createElement('a');
-      link.download = 'mood-card.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+        logging: false,
+        scale: 2 // 提高导出图片质量
+      })
+      
+      const link = document.createElement('a')
+      link.download = `mood-${mood}-${Date.now()}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
     } catch (e) {
-      alert('保存失败：' + e.message);
+      alert('保存失败：' + e.message)
     }
   }
 
@@ -49,24 +52,23 @@ export default function Mood() {
         </select>
 
         {mood && (
-          <div
-            ref={cardRef}
-            style={{
-              padding: 30,
-              background: '#e0f2fe',
-              borderRadius: 16,
-              textAlign: 'center',
-              fontSize: 24,
-              fontWeight: 600,
-              margin: '20px 0'
-            }}
-          >
-            今日心情：{mood}
-          </div>
-        )}
-
-        {mood && (
-          <button onClick={save}>保存为图片</button>
+          <>
+            <div
+              ref={cardRef}
+              style={{
+                padding: 30,
+                background: '#e0f2fe',
+                borderRadius: 16,
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: 600,
+                margin: '20px 0'
+              }}
+            >
+              今日心情：{mood}
+            </div>
+            <button onClick={save}>保存为图片</button>
+          </>
         )}
       </div>
     </div>
