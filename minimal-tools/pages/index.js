@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 
 export default function Home() {
@@ -15,10 +14,13 @@ export default function Home() {
     <div className="container">
       <h1>Minimal Tools</h1>
       {tools.map((t) => (
-        <div className="card" key={t.path}>
-          <Link href={t.path}>{t.name}</Link>
-        </div>
+        <Link href={t.path} key={t.path} className="card-link">
+          {t.name}
+        </Link>
       ))}
+      <div className="footer">
+        Minimal Tools — built with Next.js
+      </div>
     </div>
   )
 }
